@@ -15,12 +15,13 @@ import java.util.function.Predicate;
 import iskallia.vault.antique.Antique;
 import iskallia.vault.client.gui.helper.UIHelper;
 import iskallia.vault.config.AntiquesConfig;
-import iskallia.vault.config.EtchingConfig;
 import iskallia.vault.config.PlayerTitlesConfig;
 import iskallia.vault.config.TrinketConfig;
+import iskallia.vault.config.gear.VaultEtchingConfig;
 import iskallia.vault.config.gear.VaultGearTagConfig;
 import iskallia.vault.config.gear.VaultGearTierConfig;
 import iskallia.vault.core.card.*;
+import iskallia.vault.core.card.modifier.card.GearCardModifier;
 import iskallia.vault.core.data.key.ThemeKey;
 import iskallia.vault.core.vault.VaultRegistry;
 import iskallia.vault.core.vault.influence.VaultGod;
@@ -28,7 +29,6 @@ import iskallia.vault.core.vault.modifier.VaultModifierStack;
 import iskallia.vault.core.vault.modifier.spi.VaultModifier;
 import iskallia.vault.core.vault.objective.ParadoxObjective;
 import iskallia.vault.core.world.generator.layout.ArchitectRoomEntry;
-import iskallia.vault.core.world.generator.layout.DIYRoomEntry;
 import iskallia.vault.dynamodel.DynamicModel;
 import iskallia.vault.dynamodel.model.armor.ArmorPieceModel;
 import iskallia.vault.dynamodel.model.item.PlainItemModel;
@@ -81,8 +81,6 @@ import lv.id.bonne.vhdiscord.vaulthunters.mixin.CardEntryAccessor;
 import lv.id.bonne.vhdiscord.vaulthunters.mixin.GearCardModifierAccessor;
 import lv.id.bonne.vhdiscord.vaulthunters.mixin.GearModificationItemAccessor;
 import lv.id.bonne.vhdiscord.vaulthunters.mixin.ReforgeTagModificationFocusInvoker;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.*;
@@ -132,11 +130,6 @@ public class VaultItemsHandler
             else if (itemStack.getItem() instanceof EtchingItem)
             {
                 VaultItemsHandler.handleEtchingTooltip(builder, itemStack);
-                return builder.toString();
-            }
-            else if (itemStack.getItem() instanceof VaultRuneItem)
-            {
-                VaultItemsHandler.handleRuneTooltip(builder, itemStack);
                 return builder.toString();
             }
             else if (itemStack.getItem() instanceof InscriptionItem)
@@ -260,7 +253,7 @@ public class VaultItemsHandler
             // Add Etchings
             data.getFirstValue(ModGearAttributes.ETCHING).
                 ifPresent(etchingSet -> {
-                    EtchingConfig.Etching etchingConfig = ModConfigs.ETCHING.getEtchingConfig(etchingSet);
+                    VaultEtchingConfig.EtchingEntry etchingConfig = ModConfigs.ETCHINGS.getEtchingConfig(etchingSet);
                     if (etchingConfig != null)
                     {
                         builder.append("**Etching:** ").append(etchingConfig.getName()).append("\n");
@@ -539,13 +532,13 @@ public class VaultItemsHandler
         {
             data.getFirstValue(ModGearAttributes.ETCHING).ifPresent((etchingSet) ->
             {
-                EtchingConfig.Etching config = ModConfigs.ETCHING.getEtchingConfig(etchingSet);
+                VaultEtchingConfig.EtchingEntry config = ModConfigs.ETCHINGS.getEtchingConfig(etchingSet);
 
                 if (config != null)
                 {
                     builder.append("**Etching:** ").append(config.getName());
 
-                    for (TextComponent cmp : MiscUtils.splitDescriptionText(config.getEffectText()))
+                    for (TextComponent cmp : MiscUtils.splitDescriptionText(config.getDescription()))
                     {
                         builder.append("\n");
                         builder.append(cmp.getString());
@@ -553,27 +546,6 @@ public class VaultItemsHandler
                 }
             });
         }
-    }
-
-
-    /**
-     * This method parses VaultRune item tooltip into discord chat.
-     * @param builder Embed Builder.
-     * @param itemStack Vault Rune Item Stack.
-     */
-    public static void handleRuneTooltip(StringBuilder builder, ItemStack itemStack)
-    {
-        VaultRuneItem.getEntries(itemStack).forEach(diyRoomEntry -> {
-            int count = diyRoomEntry.get(DIYRoomEntry.COUNT);
-
-            builder.append("- Has ").
-                append(count).
-                append(" ").
-                append(diyRoomEntry.getName().getString()).
-                append(" ").
-                append(count > 1 ? "Rooms" : "Room");
-            builder.append("\n");
-        });
     }
 
 

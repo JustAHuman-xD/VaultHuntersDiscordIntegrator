@@ -23,7 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.players.PlayerList;
 
 
-@Mixin(value = ClassicListenersLogic.class)
+@Mixin(value = ClassicListenersLogic.class, remap = false)
 public class MixinClassicListenersLogic
 {
     @Redirect(method = "lambda$initServer$1",
